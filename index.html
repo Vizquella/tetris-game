@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Tetris Sederhana</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 15px;
+    }
+
+    h1 {
+      margin-bottom: 12px;
+      font-size: 2rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px #00d2ff, 0 0 20px #00d2ff;
+    }
+
+    .game-container {
+      display: flex;
+      gap: 20px;
+      background: rgba(18, 22, 36, 0.85);
+      border: 2px solid rgba(0, 210, 255, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 210, 255, 0.2);
+    }
+
+    .canvas-wrapper {
+      position: relative;
+    }
+
+    canvas#tetris {
+      background-color: #0d111a;
+      border: 2px solid #233148;
+      border-radius: 6px;
+      display: block;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      width: 150px;
+      gap: 15px;
+    }
+
+    .panel {
+      background: #141c2c;
+      border: 1px solid #273650;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .panel-title {
+      font-size: 0.8rem;
+      color: #7f93b5;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 6px;
+    }
+
+    .panel-value {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #00f2fe;
+      text-shadow: 0 0 8px rgba(0, 242, 254, 0.5);
+    }
+
+    #next {
+      background: #0d111a;
+      border-radius: 4px;
+      margin: 0 auto;
+      display: block;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0, 114, 255, 0.4);
+    }
+
+    .btn:hover {
+      filter: brightness(1.15);
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-secondary {
+      background: #25334d;
+      box-shadow: none;
+      border: 1px solid #3c5179;
+    }
+
+    .btn-secondary:hover {
+      background: #314468;
+    }
+
+    .controls-hint {
+      margin-top: 15px;
+      font-size: 0.8rem;
+      color: #8c9fb8;
+      max-width: 480px;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .controls-hint span {
+      background: #1b263b;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #32476d;
+      color: #e2ecfa;
+      font-weight: bold;
+    }
+
+    /* Overlay Game Over / Pause */
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(8, 11, 18, 0.88);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+    }
+
+    .overlay h2 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      color: #ff3366;
+      text-shadow: 0 0 10px #ff3366;
+    }
+
+    .overlay p {
+      font-size: 1rem;
+      margin-bottom: 18px;
+      color: #ccc;
+    }
+
+    /* Mobile virtual controls */
+    .mobile-controls {
+      display: none;
+      margin-top: 15px;
+      gap: 10px;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .mobile-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .m-btn {
+      background: #1f2b42;
+      border: 1px solid #3b4e72;
+      color: #e0edff;
+      width: 54px;
+      height: 50px;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    .m-btn:active {
+      background: #0072ff;
+      color: #fff;
+    }
+
+    .m-btn-wide {
+      width: 118px;
+    }
+
+    @media (max-width: 650px) {
+      .game-container {
+        flex-direction: column;
+        align-items: center;
+        padding: 12px;
+      }
+      .sidebar {
+        width: 100%;
+        max-width: 240px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .panel {
+        flex: 1 1 40%;
+      }
+      .mobile-controls {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>TETRIS</h1>
+
+  <div class="game-container">
+    <div class="canvas-wrapper">
+      <canvas id="tetris" width="240" height="480"></canvas>
+      
+      <div id="overlay" class="overlay">
+        <h2 id="overlay-title">GAME OVER</h2>
+        <p id="overlay-msg">Skor Akhir: 0</p>
+        <button id="overlay-btn" class="btn">Main Lagi</button>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="panel">
+        <div class="panel-title">Berikutnya</div>
+        <canvas id="next" width="96" height="96"></canvas>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Skor</div>
+        <div id="score" class="panel-value">0</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Level</div>
+        <div id="level" class="panel-value">1</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Baris</div>
+        <div id="lines" class="panel-value">0</div>
+      </div>
+
+      <button id="pause-btn" class="btn btn-secondary">Pause (P)</button>
+      <button id="restart-btn" class="btn">Restart</button>
+      <button id="sound-btn" class="btn btn-secondary" style="font-size:0.8rem;">🔊 Suara: ON</button>
+    </div>
+  </div>
+
+  <!-- Tombol Kontrol Layar Sentuh / Handphone -->
+  <div class="mobile-controls">
+    <div class="mobile-row">
+      <button class="m-btn" id="m-rotate">↻</button>
+      <button class="m-btn" id="m-hard-drop">⤓</button>
+    </div>
+    <div class="mobile-row">
+      <button class="m-btn" id="m-left">◀</button>
+      <button class="m-btn" id="m-down">▼</button>
+      <button class="m-btn" id="m-right">▶</button>
+    </div>
+  </div>
+
+  <div class="controls-hint">
+    Kontrol Keyboard: <span>◄</span> <span>►</span> Geser | <span>▲</span> Putar | <span>▼</span> Turun Cepat | <span>Spasi</span> Hard Drop | <span>P</span> Pause
+  </div>
+
+  <script>
+    // --- Inisialisasi Audio Sederhana (Web Audio API) ---
+    class SoundController {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+      }
+
+      playTone(freq, type = 'sine', duration = 0.08, vol = 0.1) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        try {
+          if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+          gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {
+          // ignore audio failure
+        }
+      }
+
+      move() { this.playTone(320, 'square', 0.04, 0.04); }
+      rotate() { this.playTone(450, 'triangle', 0.06, 0.07); }
+      drop() { this.playTone(180, 'sine', 0.07, 0.08); }
+      clear() {
+        if (!this.enabled) return;
+        const notes = [440, 554, 659, 880];
+        notes.forEach((freq, idx) => {
+          setTimeout(() => this.playTone(freq, 'triangle', 0.1, 0.08), idx * 60);
+        });
+      }
+      gameOver() {
+        if (!this.enabled) return;
+        const notes = [400, 350, 300, 220];
+        notes.forEach((freq, idx) => {
+          setTimeout(() => this.playTone(freq, 'sawtooth', 0.15, 0.08), idx * 100);
+        });
+      }
+    }
+
+    const sound = new SoundController();
+
+    // --- Konfigurasi Canvas dan Ukuran Grid ---
+    const canvas = document.getElementById('tetris');
+    const context = canvas.getContext('2d');
+
+    const nextCanvas = document.getElementById('next');
+    const nextContext = nextCanvas.getContext('2d');
+
+    const COLS = 10;
+    const ROWS = 20;
+    const BLOCK_SIZE = 24; // 240 / 10 = 24
+
+    context.scale(1, 1);
+
+    // Warna Tetromino Modern
+    const COLORS = [
+      null,
+      '#00f0f0', // 1: Cyan (I)
+      '#0033ff', // 2: Biru (J)
+      '#ff7700', // 3: Oranye (L)
+      '#ffff00', // 4: Kuning (O)
+      '#00ff00', // 5: Hijau (S)
+      '#aa00ff', // 6: Ungu (T)
+      '#ff0033', // 7: Merah (Z)
+    ];
+
+    // Bentuk Balok Tetris
+    function createPiece(type) {
+      switch (type) {
+        case 'I':
+          return [
+            [0, 0, 0, 0],
+            [1, 1, 1, 1],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+          ];
+        case 'J':
+          return [
+            [0, 2, 0],
+            [0, 2, 0],
+            [2, 2, 0],
+          ];
+        case 'L':
+          return [
+            [0, 3, 0],
+            [0, 3, 0],
+            [0, 3, 3],
+          ];
+        case 'O':
+          return [
+            [4, 4],
+            [4, 4],
+          ];
+        case 'S':
+          return [
+            [0, 5, 5],
+            [5, 5, 0],
+            [0, 0, 0],
+          ];
+        case 'T':
+          return [
+            [0, 6, 0],
+            [6, 6, 6],
+            [0, 0, 0],
+          ];
+        case 'Z':
+          return [
+            [7, 7, 0],
+            [0, 7, 7],
+            [0, 0, 0],
+          ];
+      }
+    }
+
+    // Grid Permainan
+    function createMatrix(w, h) {
+      const matrix = [];
+      while (h--) {
+        matrix.push(new Array(w).fill(0));
+      }
+      return matrix;
+    }
+
+    let arena = createMatrix(COLS, ROWS);
+
+    // Status Game
+    const player = {
+      pos: { x: 0, y: 0 },
+      matrix: null,
+      score: 0,
+      lines: 0,
+      level: 1,
+    };
+
+    let nextPiece = null;
+    let dropCounter = 0;
+    let dropInterval = 1000;
+    let lastTime = 0;
+    let isPaused = false;
+    let isGameOver = false;
+
+    // Deteksi tabrakan
+    function collide(arena, player) {
+      const m = player.matrix;
+      const o = player.pos;
+      for (let y = 0; y < m.length; ++y) {
+        for (let x = 0; x < m[y].length; ++x) {
+          if (m[y][x] !== 0) {
+            const boardY = y + o.y;
+            const boardX = x + o.x;
+            // Dinding kiri / kanan / dasar bawah
+            if (boardX < 0 || boardX >= COLS || boardY >= ROWS) {
+              return true;
+            }
+            // Tabrakan balok lain
+            if (boardY >= 0 && arena[boardY][boardX] !== 0) {
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
+
+    // Gabungkan balok yang sudah jatuh ke arena
+    function merge(arena, player) {
+      player.matrix.forEach((row, y) => {
+        row.forEach((value, x) => {
+          if (value !== 0) {
+            const boardY = y + player.pos.y;
+            const boardX = x + player.pos.x;
+            if (boardY >= 0 && boardY < ROWS && boardX >= 0 && boardX < COLS) {
+              arena[boardY][boardX] = value;
+            }
+          }
+        });
+      });
+    }
+
+    // Rotasi Matriks
+    function rotate(matrix, dir) {
+      for (let y = 0; y < matrix.length; ++y) {
+        for (let x = 0; x < y; ++x) {
+          [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+        }
+      }
+      if (dir > 0) {
+        matrix.forEach(row => row.reverse());
+      } else {
+        matrix.reverse();
+      }
+    }
+
+    // Putar balok pemain dengan perlindungan tabrakan dinding (wall kick sederhana)
+    function playerRotate(dir) {
+      if (isPaused || isGameOver) return;
+      const posX = player.pos.x;
+      let offset = 1;
+      rotate(player.matrix, dir);
+      while (collide(arena, player)) {
+        player.pos.x += offset;
+        offset = -(offset + (offset > 0 ? 1 : -1));
+        if (offset > player.matrix[0].length) {
+          rotate(player.matrix, -dir);
+          player.pos.x = posX;
+          return;
+        }
+      }
+      sound.rotate();
+    }
+
+    // Geser horizontal balok
+    function playerMove(offset) {
+      if (isPaused || isGameOver) return;
+      player.pos.x += offset;
+      if (collide(arena, player)) {
+        player.pos.x -= offset;
+      } else {
+        sound.move();
+      }
+    }
+
+    // Menghitung posisi bayangan balok (Ghost Piece)
+    function getGhostPosition() {
+      const ghost = {
+        pos: { x: player.pos.x, y: player.pos.y },
+        matrix: player.matrix
+      };
+      while (!collide(arena, ghost)) {
+        ghost.pos.y++;
+      }
+      ghost.pos.y--;
+      return ghost.pos;
+    }
+
+    // Turunkan balok 1 tingkat (Soft Drop)
+    function playerDrop() {
+      if (isPaused || isGameOver) return;
+      player.pos.y++;
+      if (collide(arena, player)) {
+        player.pos.y--;
+        merge(arena, player);
+        sound.drop();
+        arenaSweep();
+        playerReset();
+        updateScore();
+      }
+      dropCounter = 0;
+    }
+
+    // Jatuh instan (Hard Drop)
+    function playerHardDrop() {
+      if (isPaused || isGameOver) return;
+      while (!collide(arena, player)) {
+        player.pos.y++;
+      }
+      player.pos.y--;
+      merge(arena, player);
+      sound.drop();
+      arenaSweep();
+      playerReset();
+      updateScore();
+      dropCounter = 0;
+    }
+
+    // Acak balok berikutnya
+    const pieceTypes = 'ILJOTSZ';
+    function getRandomPiece() {
+      const type = pieceTypes[(pieceTypes.length * Math.random()) | 0];
+      return createPiece(type);
+    }
+
+    // Reset posisi balok pemain
+    function playerReset() {
+      if (!nextPiece) {
+        nextPiece = getRandomPiece();
+      }
+      player.matrix = nextPiece;
+      nextPiece = getRandomPiece();
+
+      player.pos.y = 0;
+      player.pos.x = ((COLS / 2) | 0) - ((player.matrix[0].length / 2) | 0);
+
+      drawNext();
+
+      // Jika langsung bertabrakan di atas, Game Over!
+      if (collide(arena, player)) {
+        handleGameOver();
+      }
+    }
+
+    // Periksa dan hapus baris yang penuh
+    function arenaSweep() {
+      let rowCount = 0;
+      outer: for (let y = arena.length - 1; y >= 0; --y) {
+        for (let x = 0; x < arena[y].length; ++x) {
+          if (arena[y][x] === 0) {
+            continue outer;
+          }
+        }
+
+        const row = arena.splice(y, 1)[0].fill(0);
+        arena.unshift(row);
+        ++y;
+        rowCount++;
+      }
+
+      if (rowCount > 0) {
+        sound.clear();
+        // Aturan skor klasik Tetris
+        const lineScores = [0, 100, 300, 500, 800];
+        player.score += (lineScores[rowCount] || 1000) * player.level;
+        player.lines += rowCount;
+        
+        // Naik level setiap 10 baris
+        player.level = Math.floor(player.lines / 10) + 1;
+        // Percepat laju jatuh balok sesuai level
+        dropInterval = Math.max(100, 1000 - (player.level - 1) * 90);
+      }
+    }
+
+    // Gambar balok 3D sederhana
+    function drawBlock(ctx, x, y, color, isGhost = false) {
+      const px = x * BLOCK_SIZE;
+      const py = y * BLOCK_SIZE;
+
+      if (isGhost) {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(px + 1, py + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
+        return;
+      }
+
+      // Base block
+      ctx.fillStyle = color;
+      ctx.fillRect(px, py, BLOCK_SIZE, BLOCK_SIZE);
+
+      // Highlight atas & kiri
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+      ctx.fillRect(px, py, BLOCK_SIZE, 3);
+      ctx.fillRect(px, py, 3, BLOCK_SIZE);
+
+      // Shadow bawah & kanan
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+      ctx.fillRect(px, py + BLOCK_SIZE - 3, BLOCK_SIZE, 3);
+      ctx.fillRect(px + BLOCK_SIZE - 3, py, 3, BLOCK_SIZE);
+
+      // Border tipis
+      ctx.strokeStyle = '#0d111a';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(px, py, BLOCK_SIZE, BLOCK_SIZE);
+    }
+
+    // Gambar Matriks (Arena / Balok)
+    function drawMatrix(matrix, offset, ctx = context, isGhost = false) {
+      matrix.forEach((row, y) => {
+        row.forEach((value, x) => {
+          if (value !== 0) {
+            drawBlock(ctx, x + offset.x, y + offset.y, COLORS[value], isGhost);
+          }
+        });
+      });
+    }
+
+    // Gambar Garis Grid Latar Belakang
+    function drawGrid() {
+      context.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      context.lineWidth = 1;
+      for (let x = 0; x <= COLS; x++) {
+        context.beginPath();
+        context.moveTo(x * BLOCK_SIZE, 0);
+        context.lineTo(x * BLOCK_SIZE, ROWS * BLOCK_SIZE);
+        context.stroke();
+      }
+      for (let y = 0; y <= ROWS; y++) {
+        context.beginPath();
+        context.moveTo(0, y * BLOCK_SIZE);
+        context.lineTo(COLS * BLOCK_SIZE, y * BLOCK_SIZE);
+        context.stroke();
+      }
+    }
+
+    // Render Utama
+    function draw() {
+      // Bersihkan canvas
+      context.fillStyle = '#0d111a';
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      drawGrid();
+
+      // Gambar balok yang sudah menetap
+      drawMatrix(arena, { x: 0, y: 0 });
+
+      // Gambar ghost piece (bayangan)
+      if (player.matrix && !isGameOver) {
+        const ghostPos = getGhostPosition();
+        drawMatrix(player.matrix, ghostPos, context, true);
+        // Gambar balok pemain yang sedang bergerak
+        drawMatrix(player.matrix, player.pos);
+      }
+    }
+
+    // Render Balok Berikutnya (Preview)
+    function drawNext() {
+      nextContext.fillStyle = '#0d111a';
+      nextContext.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+
+      if (!nextPiece) return;
+
+      const size = nextPiece.length;
+      // Posisi tengah di canvas 96x96
+      const offX = Math.floor((4 - size) / 2);
+      const offY = Math.floor((4 - size) / 2);
+
+      nextPiece.forEach((row, y) => {
+        row.forEach((val, x) => {
+          if (val !== 0) {
+            const px = (x + offX) * BLOCK_SIZE;
+            const py = (y + offY) * BLOCK_SIZE;
+            
+            nextContext.fillStyle = COLORS[val];
+            nextContext.fillRect(px, py, BLOCK_SIZE, BLOCK_SIZE);
+
+            nextContext.fillStyle = 'rgba(255, 255, 255, 0.35)';
+            nextContext.fillRect(px, py, BLOCK_SIZE, 3);
+            nextContext.fillRect(px, py, 3, BLOCK_SIZE);
+
+            nextContext.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            nextContext.fillRect(px, py + BLOCK_SIZE - 3, BLOCK_SIZE, 3);
+            nextContext.fillRect(px + BLOCK_SIZE - 3, py, 3, BLOCK_SIZE);
+
+            nextContext.strokeStyle = '#0d111a';
+            nextContext.strokeRect(px, py, BLOCK_SIZE, BLOCK_SIZE);
+          }
+        });
+      });
+    }
+
+    // Update Tampilan Skor
+    function updateScore() {
+      document.getElementById('score').innerText = player.score;
+      document.getElementById('level').innerText = player.level;
+      document.getElementById('lines').innerText = player.lines;
+    }
+
+    // Game Over Handler
+    function handleGameOver() {
+      isGameOver = true;
+      sound.gameOver();
+      const overlay = document.getElementById('overlay');
+      document.getElementById('overlay-title').innerText = 'GAME OVER';
+      document.getElementById('overlay-msg').innerText = `Skor Akhir: ${player.score}`;
+      overlay.style.display = 'flex';
+    }
+
+    // Toggle Pause
+    function togglePause() {
+      if (isGameOver) return;
+      isPaused = !isPaused;
+      const overlay = document.getElementById('overlay');
+      const pauseBtn = document.getElementById('pause-btn');
+
+      if (isPaused) {
+        pauseBtn.innerText = 'Lanjut (P)';
+        document.getElementById('overlay-title').innerText = 'DI-PAUSE';
+        document.getElementById('overlay-msg').innerText = 'Tekan P atau tombol di bawah';
+        overlay.style.display = 'flex';
+      } else {
+        pauseBtn.innerText = 'Pause (P)';
+        overlay.style.display = 'none';
+        lastTime = performance.now();
+      }
+    }
+
+    // Restart Permainan
+    function restartGame() {
+      arena.forEach(row => row.fill(0));
+      player.score = 0;
+      player.lines = 0;
+      player.level = 1;
+      dropInterval = 1000;
+      isGameOver = false;
+      isPaused = false;
+      document.getElementById('overlay').style.display = 'none';
+      document.getElementById('pause-btn').innerText = 'Pause (P)';
+      nextPiece = null;
+      playerReset();
+      updateScore();
+      lastTime = performance.now();
+    }
+
+    // Game Loop
+    function update(time = 0) {
+      const deltaTime = time - lastTime;
+      lastTime = time;
+
+      if (!isPaused && !isGameOver) {
+        dropCounter += deltaTime;
+        if (dropCounter > dropInterval) {
+          playerDrop();
+        }
+      }
+
+      draw();
+      requestAnimationFrame(update);
+    }
+
+    // --- Event Listener Keyboard ---
+    document.addEventListener('keydown', event => {
+      // Inisialisasi audio saat tombol ditekan pertama kali
+      sound.init();
+
+      if (event.code === 'KeyP') {
+        togglePause();
+        return;
+      }
+
+      if (isPaused || isGameOver) return;
+
+      switch (event.code) {
+        case 'ArrowLeft':
+        case 'KeyA':
+          event.preventDefault();
+          playerMove(-1);
+          break;
+        case 'ArrowRight':
+        case 'KeyD':
+          event.preventDefault();
+          playerMove(1);
+          break;
+        case 'ArrowDown':
+        case 'KeyS':
+          event.preventDefault();
+          playerDrop();
+          break;
+        case 'ArrowUp':
+        case 'KeyW':
+          event.preventDefault();
+          playerRotate(1);
+          break;
+        case 'Space':
+          event.preventDefault();
+          playerHardDrop();
+          break;
+      }
+    });
+
+    // --- Event Listener Tombol UI ---
+    document.getElementById('pause-btn').addEventListener('click', () => {
+      sound.init();
+      togglePause();
+    });
+
+    document.getElementById('restart-btn').addEventListener('click', () => {
+      sound.init();
+      restartGame();
+    });
+
+    document.getElementById('overlay-btn').addEventListener('click', () => {
+      sound.init();
+      if (isGameOver) {
+        restartGame();
+      } else {
+        togglePause();
+      }
+    });
+
+    const soundBtn = document.getElementById('sound-btn');
+    soundBtn.addEventListener('click', () => {
+      sound.init();
+      sound.enabled = !sound.enabled;
+      soundBtn.innerText = sound.enabled ? '🔊 Suara: ON' : '🔇 Suara: OFF';
+    });
+
+    // Kontrol Layar Sentuh / Handphone
+    const addHoldEvent = (btnId, action) => {
+      const el = document.getElementById(btnId);
+      if (!el) return;
+      el.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        sound.init();
+        action();
+      });
+    };
+
+    addHoldEvent('m-left', () => playerMove(-1));
+    addHoldEvent('m-right', () => playerMove(1));
+    addHoldEvent('m-down', () => playerDrop());
+    addHoldEvent('m-rotate', () => playerRotate(1));
+    addHoldEvent('m-hard-drop', () => playerHardDrop());
+
+    // Memulai Game
+    playerReset();
+    updateScore();
+    update();
+  </script>
+</body>
+</html>
