@@ -1,37 +1,47 @@
-# Game Tetris Sederhana (HTML5 / CSS / JavaScript)
+# 🕹️ HTML5 Canvas Arcade Puzzle Game
 
-Game Tetris klasik modern berbasis HTML5 Canvas yang dapat langsung dijalankan di browser web tanpa memerlukan instalasi apa pun.
+A lightweight, responsive browser puzzle game created from scratch using Vanilla JavaScript, HTML5 Canvas, and modern CSS.
 
-## 🎮 Cara Menjalankan
-
-Cukup buka file `index.html` dengan cara:
-1. Double click file `index.html` di File Explorer, **atau**
-2. Klik kanan `index.html` -> *Open With* -> Browser pilihan Anda (Chrome, Edge, Firefox, dll).
-
-Lokasi file:
-`C:\Users\USER\.gemini\antigravity\scratch\tetris-game\index.html`
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Technology](https://img.shields.io/badge/Stack-HTML5%20%7C%20CSS3%20%7C%20JavaScript-blue)](https://developer.mozilla.org/)
 
 ---
 
-## 🕹️ Kontrol Permainan
+## 🚀 Key Highlights
 
-### Keyboard:
-- **Panah Kiri (◀) / A**: Geser balok ke kiri
-- **Panah Kanan (▶) / D**: Geser balok ke kanan
-- **Panah Bawah (▼) / S**: Turun lebih cepat (*Soft drop*)
-- **Panah Atas (▲) / W**: Putar balok (*Rotate*)
-- **Spasi**: Jatuh instan ke dasar (*Hard drop*)
-- **P**: Pause / Lanjut permainan
-
-### Layar Sentuh / Mouse:
-- Tombol kontrol virtual disediakan di bagian bawah layar untuk pengguna HP / touch screen.
+- **Zero External Dependencies**: Pure client-side code running natively in any modern web browser.
+- **HTML5 Canvas 2D Engine**: Smooth 60 FPS animation loop powered by `requestAnimationFrame`.
+- **Procedural Sound Generation**: Built-in sound effects generated in real time using the browser's native Web Audio API (`AudioContext`). No audio asset files needed.
+- **Responsive Layout**: Adapts seamlessly to desktop screens and touch-enabled mobile devices.
+- **Interactive Controls**: Full support for both keyboard shortcuts and on-screen control buttons.
 
 ---
 
-## ✨ Fitur Game
-- **7 Bentuk Balok Standar Tetris**: I, J, L, O, S, T, Z dengan warna neon arcade.
-- **Ghost Piece**: Menampilkan bayangan posisi jatuhnya balok untuk akurasi peletakan.
-- **Preview Balok Berikutnya**: Mengetahui bentuk balok yang akan datang.
-- **Sistem Level & Kecepatan**: Semakin banyak baris yang dibersihkan, level naik dan kecepatan jatuh meningkat.
-- **Efek Suara Sintesis**: Audio retro menggunakan Web Audio API tanpa perlu unduh file audio eksternal (bisa dimatikan/dihidupkan dengan tombol suara).
-- **Desain Responsif**: Tampilan tetap nyaman di layar laptop/desktop maupun perangkat bergerak/ponsel.
+## 🕹️ Controls Guide
+
+| Action | Keyboard | Touch Interface |
+| :--- | :--- | :--- |
+| Move Left | `Arrow Left` / `A` | `◀` Button |
+| Move Right | `Arrow Right` / `D` | `▶` Button |
+| Rotate | `Arrow Up` / `W` | `↻` Button |
+| Soft Drop | `Arrow Down` / `S` | `▼` Button |
+| Hard Drop | `Spacebar` | `⤓` Button |
+| Pause / Resume | `P` | `Pause` Button |
+
+---
+
+## 🛠️ Getting Started
+
+### Local Setup
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/Vizquella/tetris-game.git
+   cd tetris-game
+   ```
+2. Open `index.html` in your favorite web browser.
+
+---
+
+## 📜 License
+
+This project is open source and available under the [MIT License](https://opensource.org/licenses/MIT).
